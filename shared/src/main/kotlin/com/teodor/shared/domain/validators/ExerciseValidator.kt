@@ -4,7 +4,7 @@ import com.teodor.shared.domain.ValidationException
 import com.teodor.shared.domain.entities.Exercise
 
 object ExerciseValidator : Validator<Exercise> {
-    override fun validate(entity: Exercise): Result<Unit> {
+    override fun validate(entity: Exercise) {
         val errors = StringBuilder()
 
         if (entity.id != null && entity.id <= 0) {
@@ -20,7 +20,7 @@ object ExerciseValidator : Validator<Exercise> {
         }
 
         if (entity.secondaryMuscleGroups.size > 2) {
-            errors.append("No more than 2 secondary muscle groups can be chosen.")
+            errors.append("No more than 2 secondary muscle groups can be chosen.\n")
         }
 
         if (entity.mainMuscleGroup != null &&
@@ -36,10 +36,8 @@ object ExerciseValidator : Validator<Exercise> {
             errors.append("Exercise type is required.\n")
         }
 
-        return if (errors.isEmpty()) {
-            Result.success(Unit)
-        } else {
-            Result.failure(ValidationException(errors.toString()))
+        if (!errors.isEmpty()) {
+            throw ValidationException(errors.toString())
         }
     }
 }

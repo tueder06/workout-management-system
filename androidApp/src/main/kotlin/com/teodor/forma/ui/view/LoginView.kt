@@ -25,14 +25,12 @@ import com.teodor.shared.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onNavigateToHome: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isLoginSuccessful) {
         if (state.isLoginSuccessful) {
-            onNavigateToHome()
             viewModel.resetSuccessState()
         }
     }

@@ -6,7 +6,6 @@ import com.teodor.shared.domain.ValueNotFoundException
 import com.teodor.shared.domain.validators.ExerciseValidator
 import com.teodor.shared.persistence.ExerciseRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import org.slf4j.LoggerFactory
 
@@ -36,12 +35,9 @@ class ExerciseServiceImpl(
 
     override suspend fun saveCustomExercise(exercise: Exercise): Result<Unit> {
         logger.debug("Trying to save custom exercise: {}", exercise)
-        val checkExercise = ExerciseValidator.validate(exercise)
-        if (checkExercise.isFailure) {
-            logger.error("Validation failed: {}", checkExercise.exceptionOrNull()?.message)
-            return checkExercise
-        }
         return try {
+            ExerciseValidator.validate(exercise)
+
             exerciseRepository.save(exercise)
             notifyUpdate()
             Result.success(Unit)
@@ -53,12 +49,9 @@ class ExerciseServiceImpl(
 
     override suspend fun updateCustomExercise(newExercise: Exercise): Result<Unit> {
         logger.debug("Trying to update custom exercise with new values: {}", newExercise)
-        val checkExercise = ExerciseValidator.validate(newExercise)
-        if (checkExercise.isFailure) {
-            logger.error("Validation failed: {}", checkExercise.exceptionOrNull()?.message)
-            return checkExercise
-        }
         return try {
+            ExerciseValidator.validate(newExercise)
+
             exerciseRepository.update(newExercise)
                 ?: throw ValueNotFoundException("Exercise not found.")
             notifyUpdate()

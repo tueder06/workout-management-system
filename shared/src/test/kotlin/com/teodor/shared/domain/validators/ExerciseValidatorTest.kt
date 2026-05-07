@@ -1,11 +1,13 @@
 package com.teodor.shared.domain.validators
 
+import com.teodor.shared.domain.ValidationException
 import com.teodor.shared.domain.entities.Exercise
 import com.teodor.shared.domain.enums.EquipmentType
 import com.teodor.shared.domain.enums.ExerciseType
 import com.teodor.shared.domain.enums.MuscleGroup
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class ExerciseValidatorTest {
     @Test
@@ -19,8 +21,9 @@ class ExerciseValidatorTest {
             exerciseType = ExerciseType.REPETITION,
             userId = null
         )
-        val result1 = ExerciseValidator.validate(exercise1)
-        assertTrue { result1.isSuccess }
+        assertDoesNotThrow {
+            ExerciseValidator.validate(exercise1)
+        }
 
         val exercise2 = Exercise(
             id = 15,
@@ -31,8 +34,9 @@ class ExerciseValidatorTest {
             exerciseType = ExerciseType.REPETITION,
             userId = "1234"
         )
-        val result2 = ExerciseValidator.validate(exercise2)
-        assertTrue { result2.isSuccess }
+        assertDoesNotThrow {
+            ExerciseValidator.validate(exercise2)
+        }
     }
 
     @Test
@@ -54,15 +58,16 @@ class ExerciseValidatorTest {
             ),
             exerciseType = null,
         )
-        val result1 = ExerciseValidator.validate(exercise1)
-        assertTrue { result1.isFailure }
-        val errorMessage1 = result1.exceptionOrNull()
-        assertTrue { errorMessage1?.message?.contains("Id") == true }
-        assertTrue { errorMessage1?.message?.contains("Name") == true }
-        assertTrue { errorMessage1?.message?.contains("Main muscle group") == true }
-        assertTrue { errorMessage1?.message?.contains("secondary muscle groups") == true }
-        assertTrue { errorMessage1?.message?.contains("equipments") == true }
-        assertTrue { errorMessage1?.message?.contains("Exercise type") == true }
+        val exception1 = assertThrows<ValidationException> {
+            ExerciseValidator.validate(exercise1)
+        }
+        val errorMessage1 = exception1.message
+        assertTrue { errorMessage1?.contains("Id") == true }
+        assertTrue { errorMessage1?.contains("Name") == true }
+        assertTrue { errorMessage1?.contains("Main muscle group") == true }
+        assertTrue { errorMessage1?.contains("secondary muscle groups") == true }
+        assertTrue { errorMessage1?.contains("equipments") == true }
+        assertTrue { errorMessage1?.contains("Exercise type") == true }
 
         val exercise2 = Exercise(
             id = 0,
@@ -74,9 +79,11 @@ class ExerciseValidatorTest {
             ),
             exerciseType = ExerciseType.REPETITION,
         )
-        val result2 = ExerciseValidator.validate(exercise2)
-        assertTrue { result2.isFailure }
-        assertTrue { result2.exceptionOrNull()?.message?.contains("Id") == true }
-        assertTrue { result2.exceptionOrNull()?.message?.contains("Main muscle group cannot be secondary as well") == true }
+        val exception2 = assertThrows<ValidationException> {
+            ExerciseValidator.validate(exercise2)
+        }
+        val errorMessage2 = exception2.message
+        assertTrue { errorMessage2?.contains("Id") == true }
+        assertTrue { errorMessage2?.contains("Main muscle group cannot be secondary as well") == true }
     }
 }

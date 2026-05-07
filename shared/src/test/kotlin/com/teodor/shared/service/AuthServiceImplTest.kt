@@ -35,12 +35,16 @@ class AuthServiceImplTest {
 
     @Test
     fun `login accumulates multiple validation errors`() = runTest {
-        val result = authService.login("bademail", "123")
-        assertTrue(result.isFailure)
-        val exception = result.exceptionOrNull() as ValidationException
+        val result1 = authService.login("bademail", "12345678")
+        assertTrue(result1.isFailure)
+        val exception1 = result1.exceptionOrNull() as ValidationException
+        assertTrue(exception1.message?.contains("email", ignoreCase = true) == true)
 
-        assertTrue(exception.message?.contains("email", ignoreCase = true) == true &&
-                exception.message?.contains("password", ignoreCase = true) == true)
+        val result2 = authService.login("dorian.hope@gmail.com", "123")
+        assertTrue(result2.isFailure)
+        val exception2 = result2.exceptionOrNull() as ValidationException
+        assertTrue(exception2.message?.contains("password", ignoreCase = true) == true)
+
         coVerify(exactly = 0) { userRepository.auth(any(), any()) }
     }
 

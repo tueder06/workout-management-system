@@ -1,10 +1,14 @@
 package com.teodor.shared.viewmodel
 
 import com.teodor.shared.domain.ExerciseFilter
+import com.teodor.shared.domain.WorkoutDayStats
 import com.teodor.shared.domain.entities.Exercise
+import com.teodor.shared.domain.entities.PlannedExercise
+import com.teodor.shared.domain.entities.WorkoutPlan
 import com.teodor.shared.domain.enums.EquipmentType
 import com.teodor.shared.domain.enums.ExerciseType
 import com.teodor.shared.domain.enums.MuscleGroup
+import com.teodor.shared.domain.enums.TrainingGoal
 
 data class LoginState(
     val email: String = "",
@@ -49,7 +53,6 @@ data class ProfileUiState(
     val errorMessage: String? = null,
     val isLoading: Boolean = false,
     val isActionLoading: Boolean = false,
-    val isLoggedOut: Boolean = false
 ) {
     val hasUnsavedChanges: Boolean
         get() = username != draftUsername ||
@@ -84,3 +87,75 @@ data class ExerciseEditorState(
     val errorMessage: String? = null,
     val saveComplete: Boolean = false
 )
+
+data class WorkoutPlanState(
+    val workoutPlans: List<WorkoutPlan> = emptyList(),
+
+    val isAdding: Boolean = false,
+    val isDeleting: Boolean = false,
+    val planToDelete: Long? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
+
+data class WorkoutPlanEditorState(
+    val planId: Long? = null,
+
+    val draftName: String = "",
+    val draftDescription: String = "",
+    val draftGoal: TrainingGoal? = null,
+    val draftDays: List<WorkoutDayStats> = emptyList(),
+
+    val isEditing: Boolean = false,
+    val isLoadingInitialData: Boolean = false,
+    val isSaving: Boolean = false,
+    val isDeletingDay: Boolean = false,
+    val isLoadingDays: Boolean = false,
+    val saveComplete: Boolean = false,
+    val errorMessage: String? = null,
+
+    val dayIdToDelete: Long? = null
+)
+
+data class WorkoutDayEditorState(
+    val dayId: Long? = null,
+    val planId: Long? = null,
+    val draftName: String = "",
+
+    val exercises: List<PlannedExercise> = emptyList(),
+
+    val isLoading: Boolean = false,
+    val isDeletingExercise: Boolean = false,
+    val isSaving: Boolean = false,
+    val saveComplete: Boolean = false,
+    val isEditing: Boolean = false,
+
+    val exerciseIdToDelete: Long? = null,
+    val errorMessage: String? = null
+)
+
+data class PlannedExerciseEditorState(
+    val plannedExerciseId: Long? = null,
+    val dayId: Long? = null,
+
+    val selectedExercise: Exercise? = null,
+    val availableExercises: List<Exercise> = emptyList(),
+
+    val targetSets: String = "",
+    val targetReps: String = "",
+    val targetWeight: String = "",
+    val targetDuration: String = "",
+    val pauseDurationSeconds: String = "",
+
+    val isLoading: Boolean = false,
+    val isSaving: Boolean = false,
+    val saveComplete: Boolean = false,
+    val isEditing: Boolean = false,
+    val errorMessage: String? = null
+)
+
+sealed interface AppAuthState {
+    data object Loading : AppAuthState
+    data object Authenticated : AppAuthState
+    data object Unauthenticated : AppAuthState
+}

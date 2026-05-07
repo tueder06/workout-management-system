@@ -1,6 +1,5 @@
 package com.teodor.shared.service
 
-import com.teodor.shared.domain.ValidationException
 import com.teodor.shared.domain.ValueNotFoundException
 import com.teodor.shared.domain.entities.User
 import com.teodor.shared.domain.validators.AuthValidator
@@ -22,20 +21,10 @@ class AuthServiceImpl(
         password: String
     ): Result<User> {
         logger.debug("Trying to login user with email {}", email)
-        val errors = StringBuilder()
-        AuthValidator.validateEmail(email).onFailure {
-            errors.append(it.message)
-        }
-        AuthValidator.validatePassword(password).onFailure {
-            errors.append(it.message)
-        }
-        if (errors.isNotEmpty()) {
-            val errorMessage = errors.toString()
-            logger.error("Validation failed: {}", errorMessage)
-            return Result.failure(ValidationException(errorMessage))
-        }
-
         return try {
+            AuthValidator.validateEmail(email)
+            AuthValidator.validatePassword(password)
+
             val user = userRepository.auth(email, password)
                 ?: throw ValueNotFoundException("User not found.")
 
@@ -48,20 +37,10 @@ class AuthServiceImpl(
 
     override suspend fun register(newUser: User, password: String): Result<Unit> {
         logger.debug("Trying to register user: {}", newUser)
-        val errors = StringBuilder()
-        AuthValidator.validate(newUser).onFailure {
-            errors.append(it.message)
-        }
-        AuthValidator.validatePassword(password).onFailure {
-            errors.append(it.message)
-        }
-        if (errors.isNotEmpty()) {
-            val errorMessage = errors.toString()
-            logger.error("Validation failed: {}", errorMessage)
-            return Result.failure(ValidationException(errorMessage))
-        }
-
         return try {
+            AuthValidator.validate(newUser)
+            AuthValidator.validatePassword(password)
+
             userRepository.register(newUser, password)
             Result.success(Unit)
         } catch (e: Exception) {

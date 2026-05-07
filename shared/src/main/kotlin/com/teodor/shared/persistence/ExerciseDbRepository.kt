@@ -64,7 +64,7 @@ class ExerciseDbRepository(
     override suspend fun filterExercises(filter: ExerciseFilter): Iterable<Exercise> {
         logger.debug("Searching for exercises using the filter: {}", filter)
         val userId = supabase.auth.currentUserOrNull()?.id
-        logger.debug("Logged user is {}", userId)
+        logger.debug("Currently logged user is {}", userId)
         val updatedFilter = filter.copy(userId = userId)
         val list1 = supabase.from("exercises").select {
             filter {

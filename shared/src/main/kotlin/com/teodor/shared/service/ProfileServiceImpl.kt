@@ -1,6 +1,5 @@
 package com.teodor.shared.service
 
-import com.teodor.shared.domain.ValidationException
 import com.teodor.shared.domain.ValueNotFoundException
 import com.teodor.shared.domain.entities.User
 import com.teodor.shared.domain.validators.AuthValidator
@@ -23,22 +22,13 @@ class ProfileServiceImpl(
         newPassword: String?
     ): Result<Unit> {
         logger.debug("Trying to update user profile: {}", newUser)
-        val errors = StringBuilder()
-        AuthValidator.validate(newUser).onFailure {
-            errors.append(it.message)
-        }
-        if (!newPassword.isNullOrBlank()) {
-            AuthValidator.validatePassword(newPassword).onFailure {
-                errors.append(it.message)
-            }
-        }
-        if (errors.isNotEmpty()) {
-            val errorMessage = errors.toString()
-            logger.error("Validation failed: {}", errorMessage)
-            return Result.failure(ValidationException(errorMessage))
-        }
 
         return try {
+            AuthValidator.validate(newUser)
+            if (newPassword != null) {
+                AuthValidator.validatePassword(newPassword)
+            }
+
             userRepository.updateCredentials(newUser, newEmail, newPassword)
             Result.success(Unit)
         } catch (e: Exception) {

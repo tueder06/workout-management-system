@@ -150,7 +150,7 @@ class ProfileViewModel(
             _state.update { it.copy(isActionLoading = true, errorMessage = null) }
             val result = authService.logout()
             result.onSuccess {
-                _state.update { it.copy(isLoggedOut = true, showLogoutDialog = false, isActionLoading = false) }
+                _state.update { it.copy(showLogoutDialog = false, isActionLoading = false) }
             }.onFailure { error ->
                 _state.update { it.copy(isActionLoading = false, errorMessage = error.message) }
             }
@@ -162,7 +162,7 @@ class ProfileViewModel(
             _state.update { it.copy(isActionLoading = true, errorMessage = null) }
             val result = cachedUserId?.let { profileService.deleteAccount(it) }
             result?.onSuccess {
-                _state.update { it.copy(isLoggedOut = true, showDeleteDialog = false, isActionLoading = false) }
+                _state.update { it.copy(showDeleteDialog = false, isActionLoading = false) }
             }?.onFailure { error ->
                 _state.update { it.copy(isActionLoading = false, errorMessage = error.message) }
             }

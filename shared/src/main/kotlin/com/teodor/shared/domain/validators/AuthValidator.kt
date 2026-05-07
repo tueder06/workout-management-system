@@ -13,27 +13,25 @@ object AuthValidator : Validator<User> {
                 + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,9})$"
     )
 
-    fun validateEmail(email: String): Result<Unit> {
-        return when {
+    fun validateEmail(email: String) {
+        when {
             email.isBlank() ->
-                Result.failure(ValidationException("Email is required.\n"))
+                throw ValidationException("Email is required.\n")
             !EMAIL_REGEX.matches(email) ->
-                Result.failure(ValidationException("The email does not look like one.\n"))
-            else -> Result.success(Unit)
+                throw ValidationException("The email does not look like one.\n")
         }
     }
 
-    fun validatePassword(password: String): Result<Unit> {
-        return when {
+    fun validatePassword(password: String) {
+        when {
             password.isBlank() ->
-                Result.failure(ValidationException("Password is required.\n"))
+                throw ValidationException("Password is required.\n")
             password.length < 8 ->
-                Result.failure(ValidationException("Password must contain at least 8 characters.\n"))
-            else -> Result.success(Unit)
+                throw ValidationException("Password must contain at least 8 characters.\n")
         }
     }
 
-    override fun validate(entity: User): Result<Unit> {
+    override fun validate(entity: User) {
         val errors = StringBuilder()
 
         if (entity.id != null && entity.id.isBlank()) {
@@ -44,10 +42,11 @@ object AuthValidator : Validator<User> {
             errors.append("Username must contain at least 2 characters.\n")
         }
 
-        val checkEmail = validateEmail(entity.email)
-        if (checkEmail.isFailure) {
-            val message = checkEmail.exceptionOrNull()?.message
-            errors.append(message)
+        when {
+            entity.email.isBlank() ->
+                errors.append("Email is required.\n")
+            !EMAIL_REGEX.matches(entity.email) ->
+                errors.append("The email does not look like one.\n")
         }
 
         if (entity.firstName.trim().length < 2) {
@@ -58,10 +57,8 @@ object AuthValidator : Validator<User> {
             errors.append("Last name must contain at least 2 characters.\n")
         }
 
-        return if (errors.isEmpty()) {
-            Result.success(Unit)
-        } else {
-            Result.failure(ValidationException(errors.toString()))
+        if (!errors.isEmpty()) {
+            throw ValidationException(errors.toString())
         }
     }
 }

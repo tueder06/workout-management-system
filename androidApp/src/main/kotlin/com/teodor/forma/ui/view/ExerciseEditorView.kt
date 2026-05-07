@@ -46,7 +46,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.teodor.forma.ConfirmDialog
 import com.teodor.forma.MultiSelectDialog
 import com.teodor.forma.ui.theme.DarkGreen
@@ -128,7 +127,9 @@ fun ExerciseEditorContent(
 
         Row(modifier = Modifier.fillMaxWidth().padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = state.draftName.ifEmpty { if (state.isLoadingInitialData) "View exercise" else "New exercise"  },
+                text = state.draftName.ifEmpty {
+                    if (state.isLoadingInitialData || state.exerciseId != null) "View exercise"
+                    else "New exercise" },
                 color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
